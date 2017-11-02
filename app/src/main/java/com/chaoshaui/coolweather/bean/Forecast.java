@@ -1,5 +1,7 @@
 package com.chaoshaui.coolweather.bean;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Created by chaofang on 2017/11/2.
  */
@@ -11,7 +13,7 @@ public class Forecast {
      * cond : {"txt_d":"阵雨"}
      * tmp : {"max":"34","min":"27"}
      */
-
+    @SerializedName("date")
     public String data;
     public CondBean cond;
     public TmpBean  tmp;

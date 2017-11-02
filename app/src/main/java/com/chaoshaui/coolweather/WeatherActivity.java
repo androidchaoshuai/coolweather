@@ -1,17 +1,21 @@
 package com.chaoshaui.coolweather;
 
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.chaoshaui.coolweather.bean.Forecast;
 import com.chaoshaui.coolweather.bean.Weather;
 import com.chaoshaui.coolweather.utils.HttpUtils;
@@ -46,13 +50,26 @@ public class WeatherActivity extends AppCompatActivity {
     private TextView mWt_info;
     private TextView mMax_info;
     private TextView mMin_info;
+    private ImageView mImageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setContentView(R.layout.activity_weather);
         super.onCreate(savedInstanceState);
+        getMyWindow();
         initView();
         initData();
+    }
+
+    /**
+     *
+     */
+    private void getMyWindow() {
+        if(Build.VERSION.SDK_INT >=21){
+            View  mDecor= getWindow().getDecorView();
+            mDecor.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+            getWindow().setStatusBarColor(Color.TRANSPARENT);
+        }
     }
 
     private void initView() {
@@ -67,11 +84,18 @@ public class WeatherActivity extends AppCompatActivity {
         mTv_suggestion_comfort = (TextView) findViewById(R.id.tv_comfort);
         mTv_suggestion_carwash = (TextView) findViewById(R.id.tv_carwash);
         mTv_suggestion_sport = (TextView) findViewById(R.id.tv_sport);
+        mImageView = (ImageView) findViewById(R.id.big_photo);
     }
 
     private void initData() {
         SharedPreferences mPre = PreferenceManager.getDefaultSharedPreferences(this);
         String mWeatherStr = mPre.getString("weather",null);
+        String mBingPhoto = mPre.getString("bing_pic",null);
+        if(mBingPhoto != null){
+            Glide.with(WeatherActivity.this).load(mBingPhoto).into(mImageView);
+        }else{
+            loadBingPic();
+        }
         if(mWeatherStr != null){
             //有缓存时读取数据库数据
             Weather mWeather = JsonUtils.handleWeatherResponse(mWeatherStr);
@@ -82,6 +106,33 @@ public class WeatherActivity extends AppCompatActivity {
             mSView.setVisibility(View.INVISIBLE);
             requestWeather(mWeatherId);
         }
+    }
+
+    /**
+     *
+     */
+    private void loadBingPic() {
+        String requestBingPic = "http://guolin.tech/api/bing_pic";
+        HttpUtils.sendOkhttpRequest(requestBingPic, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                final String             mResponse = response.body().string();
+                SharedPreferences.Editor mEditor   = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
+                mEditor.putString("bing_pic" , mResponse);
+                mEditor.apply();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Glide.with(WeatherActivity.this).load(mResponse).into(mImageView);
+                    }
+                });
+            }
+        });
     }
 
     /**
@@ -167,6 +218,7 @@ public class WeatherActivity extends AppCompatActivity {
                 });
             }
         });
+        loadBingPic();
     }
 
 

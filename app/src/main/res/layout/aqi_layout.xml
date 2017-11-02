@@ -72,7 +72,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:textColor="#fff"
-                    android:text="@string/aqi"/>
+                    android:text="@string/pm"/>
 
             </LinearLayout>
         </RelativeLayout>
