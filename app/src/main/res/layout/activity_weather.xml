@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:background="@color/colorPrimary"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <ScrollView
+        android:id="@+id/sv_weather"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="none"
+        android:overScrollMode="never">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <include layout="@layout/title_layout"/>
+
+        <include layout="@layout/now_layout"/>
+
+        <include layout="@layout/forecast_layout"/>
+
+        <include layout="@layout/aqi_layout"/>
+
+        <include layout="@layout/suggestion_layout"/>
+
+    </LinearLayout>
+
+    </ScrollView>
+
+</FrameLayout>

@@ -2,9 +2,11 @@ package com.chaoshaui.coolweather.utils;
 
 import android.text.TextUtils;
 
+import com.chaoshaui.coolweather.bean.Weather;
 import com.chaoshaui.coolweather.db.City;
 import com.chaoshaui.coolweather.db.County;
 import com.chaoshaui.coolweather.db.Province;
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -89,6 +91,26 @@ public class JsonUtils {
             }
         }
         return false;
+    }
+
+    /**
+     * 将返回的JSON数据解析成weather实体类
+     * @param response
+     * @return
+     */
+    public static Weather handleWeatherResponse(String response){
+
+        if(!TextUtils.isEmpty(response)){
+            try {
+                JSONObject mWeatherObject = new JSONObject(response);
+                JSONArray mWeatherArray = mWeatherObject.getJSONArray("HeWeather");
+                String mWeather = mWeatherArray.getJSONObject(0).toString();
+                return new Gson().fromJson(mWeather,Weather.class);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
     }
 
 }

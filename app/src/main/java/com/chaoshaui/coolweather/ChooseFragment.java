@@ -2,6 +2,7 @@ package com.chaoshaui.coolweather;
 
 import android.app.Fragment;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -58,7 +59,7 @@ public class ChooseFragment extends Fragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.choose_area,container,false);
         mBt_back = (Button) view.findViewById(R.id.bt_back);
-        mTv_title = (TextView) view.findViewById(R.id.tv_title);
+        mTv_title = (TextView) view.findViewById(R.id.tv_area_title);
         mLv_weather = (ListView) view.findViewById(R.id.lv_weather);
         mAdapter = new ArrayAdapter<>(MyApplication.getContext(), android.R.layout.simple_list_item_1, mDataList);
         mLv_weather.setAdapter(mAdapter);
@@ -81,6 +82,12 @@ public class ChooseFragment extends Fragment{
                     mSelectedCity = mCitys.get(position);
                     Log.d(TAG,"mSelectedCity is "+mSelectedCity);
                     queryCounties();
+                }else if(mCurrentLevel == LEVEL_COUNTY){
+                    String weatherId = mCountys.get(position).getWeatherId();
+                    Intent intent    = new Intent(getActivity(),WeatherActivity.class);
+                    intent.putExtra("weather_id",weatherId);
+                    startActivity(intent);
+                    getActivity().finish();
                 }
             }
         });
