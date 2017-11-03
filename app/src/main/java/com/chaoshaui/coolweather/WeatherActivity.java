@@ -10,6 +10,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -60,6 +61,8 @@ public class WeatherActivity extends AppCompatActivity {
     public SwipeRefreshLayout mSw_refresh;
     public DrawerLayout mDrawerLayout;
     private Button mNav_button;
+    private String mWeatherId_refresh;
+    private boolean isFresh;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,9 +73,6 @@ public class WeatherActivity extends AppCompatActivity {
         initData();
     }
 
-    /**
-     *
-     */
     private void getMyWindow() {
         if(Build.VERSION.SDK_INT >=21){
             View  mDecor= getWindow().getDecorView();
@@ -109,6 +109,7 @@ public class WeatherActivity extends AppCompatActivity {
         });
         SharedPreferences mPre = PreferenceManager.getDefaultSharedPreferences(this);
         String mWeatherStr = mPre.getString("weather",null);
+        Log.d(TAG,"mWeatherStr is--->"+mWeatherStr);
         String mBingPhoto = mPre.getString("bing_pic",null);
         if(mBingPhoto != null){
             Glide.with(WeatherActivity.this).load(mBingPhoto).into(mImageView);
@@ -120,16 +121,20 @@ public class WeatherActivity extends AppCompatActivity {
             //有缓存时读取数据库数据
             Weather mWeather = JsonUtils.handleWeatherResponse(mWeatherStr);
             weatherId = mWeather.mBasic.weatherId;
+            Log.d(TAG,"have date weatherId is" + weatherId);
             showWeatherInfo(mWeather);
         }else{
             //没缓存时请求服务器获取数据
             weatherId = getIntent().getStringExtra("weather_id");
+            Log.d(TAG,"nodate weatherId is" + weatherId);
             mSView.setVisibility(View.INVISIBLE);
             requestWeather(weatherId);
         }
         mSw_refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                Log.d(TAG,"onrefresh weatherId is" + weatherId);
+                isFresh = true;
                 requestWeather(weatherId);
             }
         });
@@ -204,17 +209,26 @@ public class WeatherActivity extends AppCompatActivity {
         mSView.setVisibility(View.VISIBLE);
     }
 
+
     /**
      * 根据天气 WeatherId 访问服务器获取当前天气信息
      * @param mWeatherId    
      */
     public void requestWeather(final String mWeatherId) {
-        Log.d(TAG,"mWeatherId : "+ mWeatherId);
+        Log.d(TAG,"mWeatherId : "+ mWeatherId +"<--mWeatherId_refresh-->"+mWeatherId_refresh);
+        String id = mWeatherId;
+        if(isFresh&& !TextUtils.isEmpty(mWeatherId_refresh)){
+            id = mWeatherId_refresh;
+            isFresh = false;
+        }else {
+            mWeatherId_refresh = mWeatherId;
+        }
         //https://free-api.heweather.com/s6/weather/forecast?location=CN101240302&key=d6b14f1172c245ea9ae47d173094cd41
         /*String mWeatherUrl = "https://free-api.heweather.com/s6/weather/forecast?location="
                 + mWeatherId + "&key=d6b14f1172c245ea9ae47d173094cd41";*/
         //CN101240302
-        String mWeatherUrl = "http://guolin.tech/api/weather?cityid=" + mWeatherId +"&key=bc0418b57b2d4918819d3974ac1285d9";
+        String mWeatherUrl = "http://guolin.tech/api/weather?cityid=" + id +"&key=bc0418b57b2d4918819d3974ac1285d9";
+        Log.d(TAG,"id:"+id+"<--mWeatherId-->"+mWeatherId+"<--mWeatherId_refresh-->"+mWeatherId_refresh);
         //http://guolin.tech/api/weather?cityid=CN101240302&key=bc0418b57b2d4918819d3974ac1285d9
         HttpUtils.sendOkhttpRequest(mWeatherUrl, new Callback() {
             @Override
@@ -226,7 +240,6 @@ public class WeatherActivity extends AppCompatActivity {
                         mSw_refresh.setRefreshing(false);
                     }
                 });
-
             }
 
             @Override

@@ -86,7 +86,6 @@ public class ChooseFragment extends Fragment {
                 }else if(mCurrentLevel == LEVEL_COUNTY){
                     String weatherId = mCountys.get(position).getWeatherId();
                     if(getActivity() instanceof MainActivity){
-
                         Intent intent    = new Intent(getActivity(),WeatherActivity.class);
                         intent.putExtra("weather_id",weatherId);
                         startActivity(intent);
