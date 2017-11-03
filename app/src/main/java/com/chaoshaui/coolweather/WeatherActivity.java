@@ -1,5 +1,6 @@
 package com.chaoshaui.coolweather;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
@@ -22,6 +23,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.chaoshaui.coolweather.bean.Forecast;
 import com.chaoshaui.coolweather.bean.Weather;
+import com.chaoshaui.coolweather.service.AutoUpdateService;
 import com.chaoshaui.coolweather.utils.HttpUtils;
 import com.chaoshaui.coolweather.utils.JsonUtils;
 
@@ -134,8 +136,6 @@ public class WeatherActivity extends AppCompatActivity {
 
     }
 
-
-
     /**
      *
      */
@@ -168,6 +168,7 @@ public class WeatherActivity extends AppCompatActivity {
      * @param mWeather
      */
     private void showWeatherInfo(Weather mWeather) {
+
         Log.d(TAG,"mWeather is "+mWeather.mBasic.update);
         String mCityName = mWeather.mBasic.cityName;
         String mUpdateTime = mWeather.mBasic.update.updateTime.split(" ")[1];
@@ -241,6 +242,8 @@ public class WeatherActivity extends AppCompatActivity {
                             Log.d(TAG,mResponse);
                             mEditor.apply();
                             showWeatherInfo(mWeather);
+                            Intent intent = new Intent(WeatherActivity.this, AutoUpdateService.class);
+                            startService(intent);
                         }else{
                             Toast.makeText(WeatherActivity.this,"获取天气信息失败",Toast.LENGTH_SHORT).show();
                         }
@@ -251,8 +254,4 @@ public class WeatherActivity extends AppCompatActivity {
         });
         loadBingPic();
     }
-
-
-    
-
 }
