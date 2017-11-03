@@ -1,9 +1,10 @@
 package com.chaoshaui.coolweather;
 
-import android.app.Fragment;
+
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,7 +36,7 @@ import okhttp3.Response;
  * Created by chaofang on 2017/11/1.
  */
 
-public class ChooseFragment extends Fragment{
+public class ChooseFragment extends Fragment {
 
 
     private static final int LEVEL_PROVINCE = 0;
@@ -84,10 +85,18 @@ public class ChooseFragment extends Fragment{
                     queryCounties();
                 }else if(mCurrentLevel == LEVEL_COUNTY){
                     String weatherId = mCountys.get(position).getWeatherId();
-                    Intent intent    = new Intent(getActivity(),WeatherActivity.class);
-                    intent.putExtra("weather_id",weatherId);
-                    startActivity(intent);
-                    getActivity().finish();
+                    if(getActivity() instanceof MainActivity){
+
+                        Intent intent    = new Intent(getActivity(),WeatherActivity.class);
+                        intent.putExtra("weather_id",weatherId);
+                        startActivity(intent);
+                        getActivity().finish();
+                    }else if(getActivity() instanceof WeatherActivity){
+                        WeatherActivity weatherActivity = (WeatherActivity) getActivity();
+                        weatherActivity.mDrawerLayout.closeDrawers();
+                        weatherActivity.mSw_refresh.setRefreshing(true);
+                        weatherActivity.requestWeather(weatherId);
+                    }
                 }
             }
         });
